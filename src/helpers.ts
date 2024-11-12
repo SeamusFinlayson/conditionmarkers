@@ -51,14 +51,23 @@ export async function buildConditionMarker(
   const rotation = markerReturn.rotation;
   const imageUrl = `https://conditiontracker.onrender.com/images/${name.toLowerCase().replace(/['-]/g, "").replace(/[ ]/g, "_")}.png`;
   
+  const IMAGE_DPI = 150;
+
   const theImage = {
-    width: markerReturn.size,
-    height: markerReturn.size,
+    width: IMAGE_DPI,
+    height: IMAGE_DPI,
     mime: "image/jpg",
     url: imageUrl,
   }
 
-  const marker = buildImage(theImage, attached.grid)
+  const desiredLength = 24;
+  const sceneDpi = await OBR.scene.grid.getDpi();
+  const imageInSceneDpi = (sceneDpi * IMAGE_DPI) / desiredLength;
+
+  const marker = buildImage(theImage, {
+    offset: { x: imageInSceneDpi / 2, y: imageInSceneDpi / 2 },
+    dpi: imageInSceneDpi,
+  })
     .scale({ x: scale, y: scale })
     .rotation(rotation)
     .position(position)
