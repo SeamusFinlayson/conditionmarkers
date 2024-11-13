@@ -1,7 +1,7 @@
 {
   "name": "Condition Markers",
-  "version": "1.0.1",
-  "manifest_version": 2,
+  "version": "1.0.3",
+  "manifest_version": 4,
   "author": "Keegan",
   "icon": "/logo.png",
   "background_url": "/background.html",

@@ -32,7 +32,7 @@ body {
   border-radius: 100%;
 }
 
-.condition-button:focus {
+.condition-button:focus-visible {
   background: rgb(79, 74, 112);
 }
 
