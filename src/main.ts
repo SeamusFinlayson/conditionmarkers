@@ -359,8 +359,6 @@ async function handleButtonClick(button: HTMLButtonElement) {
       repositionConditionMarker(item);
     }
   }
-
-  focusSearchBar();
 }
 
 //focus search bar
