@@ -58,7 +58,6 @@ I'm open to pull requests for bug fixes only. Pull requests for new features wil
 
 If you want to support me financially, you can [buy me a coffee](https://www.buymeacoffee.com/keegandev)!
 
-Feel free to email me at keegan.developer@gmail.com with any questions about the extension and I will try to answer them!
-
+[Edit] Hi, Seamus here, I've taken over maintenance of this extension. If you have any problems please make a post in the [Owlbear Rodeo Discord extension-support forum](https://discord.gg/d8TmuVVc)
 
 Copyright (C) 2023 Keegan Bergman

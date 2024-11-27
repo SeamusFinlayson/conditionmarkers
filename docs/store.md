@@ -2,14 +2,14 @@
 title: Condition Markers
 description: "Quickly add condition markers to your characters to keep track of concentration, grapples, invisibility, etc."
 author: Keegan
-image: https://raw.githubusercontent.com/kgbergman/conditionmarkers/main/docs/header.jpg
-icon: https://raw.githubusercontent.com/kgbergman/conditionmarkers/main/public/logo.png
+image: https://raw.githubusercontent.com/SeamusFinlayson/conditionmarkers/main/docs/header.jpg
+icon: https://raw.githubusercontent.com/SeamusFinlayson/conditionmarkers/main/public/logo.png
 tags:
   - "tool"
   - "content-pack"
   - "combat"
-manifest: https://conditiontracker.onrender.com/manifest.json
-learn-more: https://github.com/kgbergman/conditionmarkers
+manifest: https://condition-markers.onrender.com/manifest.json
+learn-more: https://github.com/SeamusFinlayson/conditionmarkers
 ---
 
 # Condition Markers
@@ -50,6 +50,6 @@ If for any reason you need to move or edit the icon, you can double-click on it 
 
 If you want to support me financially, you can [buy me a coffee](https://www.buymeacoffee.com/keegandev)!
 
-Feel free to email me at keegan.developer@gmail.com with any questions about the extension and I will try to answer them!
+[Edit] Hi, Seamus here, I've taken over maintenance of this extension. If you have any problems please make a post in the [Owlbear Rodeo Discord extension-support forum](https://discord.gg/d8TmuVVc)
 
 Copyright (C) 2023 Keegan Bergman
