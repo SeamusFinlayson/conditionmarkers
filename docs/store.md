@@ -50,6 +50,6 @@ If for any reason you need to move or edit the icon, you can double-click on it 
 
 If you want to support me financially, you can [buy me a coffee](https://www.buymeacoffee.com/keegandev)!
 
-[Edit] Hi, Seamus here, I've taken over maintenance of this extension. If you have any problems please make a post in the [Owlbear Rodeo Discord extension-support forum](https://discord.gg/d8TmuVVc)
+[Edit] Hi, Seamus here, I've taken over maintenance of this extension. If you have any problems please make a post in the [Owlbear Rodeo Discord extension-support forum](https://discord.gg/u5RYMkV98s)
 
 Copyright (C) 2023 Keegan Bergman
