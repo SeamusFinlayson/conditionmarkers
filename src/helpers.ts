@@ -2,6 +2,8 @@ import OBR, { Item, buildImage, isImage } from "@owlbear-rodeo/sdk";
 import type { Image } from "@owlbear-rodeo/sdk";
 import { getPluginId } from "./getPluginId";
 
+type Bounds = { width:number, height:number }
+
 export function isPlainObject(
   item: unknown
 ): item is Record<keyof any, unknown> {
@@ -41,7 +43,9 @@ export async function buildConditionMarker(
   attachedCount: number,
 ) {
 
-  const markerReturn = await getMarkerPosition(attached, attachedCount);
+  const sceneDpi = await OBR.scene.grid.getDpi();
+  const bounds =  getImageBounds(attached, sceneDpi)
+  const markerReturn = await getMarkerPosition(attached, attachedCount, bounds);
 
   const position = {
     x: markerReturn.x,
@@ -51,21 +55,21 @@ export async function buildConditionMarker(
   const rotation = markerReturn.rotation;
   const imageUrl = `https://conditiontracker.onrender.com/images/${name.toLowerCase().replace(/['-]/g, "").replace(/[ ]/g, "_")}.png`;
   
-  const IMAGE_DPI = 150;
+  const CONDITION_DPI = 150;
 
   const theImage = {
-    width: IMAGE_DPI,
-    height: IMAGE_DPI,
+    width: CONDITION_DPI,
+    height: CONDITION_DPI,
     mime: "image/jpg",
     url: imageUrl,
   }
 
   const desiredLength = 24;
-  const sceneDpi = await OBR.scene.grid.getDpi();
-  const imageInSceneDpi = (sceneDpi * IMAGE_DPI) / desiredLength;
+  const imageScaleFactor = bounds.width / 150
+  const imageInSceneDpi = (sceneDpi * CONDITION_DPI) / desiredLength / imageScaleFactor;
 
   const marker = buildImage(theImage, {
-    offset: { x: imageInSceneDpi / 2, y: imageInSceneDpi / 2 },
+    offset: { x: 0, y: 0 },
     dpi: imageInSceneDpi,
   })
     .scale({ x: scale, y: scale })
@@ -81,6 +85,13 @@ export async function buildConditionMarker(
     .build();
 
   return marker;
+}
+
+function getImageBounds(item: Image, sceneDpi: number): Bounds {
+  const dpiScale = sceneDpi / item.grid.dpi;
+  const width = item.image.width * dpiScale * item.scale.x;
+  const height = item.image.height * dpiScale * item.scale.y;
+  return { width, height };
 }
 
 function translatePositionAfterRotation(centerX: number, centerY: number, x: number, y: number, theta: number) {  
@@ -105,7 +116,7 @@ function translatePositionAfterRotation(centerX: number, centerY: number, x: num
  * Gather the marker's position based on the image size and position and the
  * number of other markers on the image already
  */
-async function getMarkerPosition(item: Image, count: number) {
+async function getMarkerPosition(item: Image, count: number, bounds:Bounds) {
   const imgWidth = item.image.width;
   const imgHeight = item.image.height;
 
@@ -113,7 +124,6 @@ async function getMarkerPosition(item: Image, count: number) {
   let markersTall = 0;
   let markerDimensionPos = 0;
   let markerDimensionSize = 0;
-  const bounds = await OBR.scene.items.getItemBounds([item.id]);
 
   //Figure out the image's aspect ratio
   //Divide the image's aspect ratio in to a grid (w/ a minimum of 5 on the shortest side)
@@ -132,8 +142,8 @@ async function getMarkerPosition(item: Image, count: number) {
     markerDimensionSize = imgWidth / markersWide;
   }
 
-  const itemLeft = item.position.x;
-  const itemTop = item.position.y;
+  const itemLeft = item.position.x - bounds.width / 2 * item.scale.x;
+  const itemTop = item.position.y - bounds.height / 2 * item.scale.y;
 
   let row = Math.floor(count / markersWide);
   let col = count % markersWide;
@@ -176,8 +186,10 @@ export async function repositionConditionMarker(item: Image) {
 
   // Get this marker's new position given it's new position in the grid
   const newMarkerInfo: { x: number; y: number, size: number }[] = [];
+  const sceneDpi = await OBR.scene.grid.getDpi();
+  const bounds = getImageBounds(item, sceneDpi)
   for (let i = 0; i < attachedMarkers.length; i++) {
-    newMarkerInfo.push(await getMarkerPosition(item, i));
+    newMarkerInfo.push(await getMarkerPosition(item, i, bounds));
   }
 
   // Reposition the markers in the scene based on their new grid positions
