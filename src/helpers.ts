@@ -116,30 +116,40 @@ function getMarkerScale(imageItem: Image) {
 /**
  * Reposition a marker after one was deleted, always hug the upper left corner
  */
-export async function repositionConditionMarker(item: Image) {
+export async function repositionConditionMarker(imageItems: Image[]) {
   //Grab all condition markers on the scene
-  const conditionMarkers = await OBR.scene.items.getItems<Image>((item) => {
+  const conditionMarkers = await OBR.scene.items.getItems<Image>(item => {
     const metadata = item.metadata[getPluginId("metadata")];
     return Boolean(isPlainObject(metadata) && metadata.enabled);
   });
 
-  // Find all markers attached to this item
-  const attachedMarkers = conditionMarkers.filter(
-    (marker) => marker.attachedTo === item.id
-  );
+  let attachedMarkers: Image[] = [];
+  let newMarker: { id: string; position: Vector2 }[] = [];
+  for (const imageItem of imageItems) {
+    // Find all markers attached to this item
+    attachedMarkers = conditionMarkers.filter(
+      marker => marker.attachedTo === imageItem.id
+    );
 
-  // Get this marker's new position given it's new position in the grid
-  const newMarkerInfo: Vector2[] = [];
-  const sceneDpi = await OBR.scene.grid.getDpi();
-  for (let i = 0; i < attachedMarkers.length; i++) {
-    newMarkerInfo.push(getMarkerPosition(item, i, sceneDpi));
+    // Get this marker's new position given it's new position in the grid
+    const sceneDpi = await OBR.scene.grid.getDpi();
+    for (let i = 0; i < attachedMarkers.length; i++) {
+      newMarker.push({
+        id: attachedMarkers[i].id,
+        position: getMarkerPosition(imageItem, i, sceneDpi),
+      });
+    }
   }
 
   // Reposition the markers in the scene based on their new grid positions
-  await OBR.scene.items.updateItems(attachedMarkers, (images) => {
-    for (let i = 0; i < images.length; i++) {
-      images[i].position.x = newMarkerInfo[i].x;
-      images[i].position.y = newMarkerInfo[i].y;
+  await OBR.scene.items.updateItems(
+    newMarker.map(marker => marker.id),
+    images => {
+      for (let i = 0; i < images.length; i++) {
+        if (images[i].id !== newMarker[i].id)
+          console.error("Condition marker ID mismatch, skipping item.");
+        else images[i].position = newMarker[i].position;
+      }
     }
-  });
+  );
 }
