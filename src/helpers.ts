@@ -39,7 +39,6 @@ export async function updateConditionButtons(items: Item[]) {
 export async function buildConditionMarker(
   name: String,
   attached: Image,
-  scale: number,
   attachedCount: number,
 ) {
 
@@ -66,13 +65,13 @@ export async function buildConditionMarker(
 
   const desiredLength = 24;
   const imageScaleFactor = bounds.width / 150
-  const imageInSceneDpi = (sceneDpi * CONDITION_DPI) / desiredLength / imageScaleFactor;
+  const imageInSceneDpi = (sceneDpi * CONDITION_DPI) / desiredLength ;
 
   const marker = buildImage(theImage, {
     offset: { x: 0, y: 0 },
     dpi: imageInSceneDpi,
   })
-    .scale({ x: scale, y: scale })
+    .scale({ x:imageScaleFactor, y:imageScaleFactor })
     .rotation(rotation)
     .position(position)
     .attachedTo(attached.id)
@@ -142,8 +141,8 @@ async function getMarkerPosition(item: Image, count: number, bounds:Bounds) {
     markerDimensionSize = imgWidth / markersWide;
   }
 
-  const itemLeft = item.position.x - bounds.width / 2 * item.scale.x;
-  const itemTop = item.position.y - bounds.height / 2 * item.scale.y;
+  const itemLeft = item.position.x - bounds.width / 2;
+  const itemTop = item.position.y - bounds.height / 2;
 
   let row = Math.floor(count / markersWide);
   let col = count % markersWide;

@@ -343,7 +343,7 @@ async function handleButtonClick(button: HTMLButtonElement) {
           selectedButton.style.visibility = "visible";
           selectedButton.classList.add("visible");
         }
-        markersToAdd.push(await buildConditionMarker(condition, item, item.scale.x, attachedMarkers.length));
+        markersToAdd.push(await buildConditionMarker(condition, item, attachedMarkers.length));
       }
     }
 
