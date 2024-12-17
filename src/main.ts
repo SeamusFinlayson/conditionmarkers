@@ -1,4 +1,4 @@
-import OBR, { Image, Item } from "@owlbear-rodeo/sdk";
+import OBR, { Image, isImage, Item } from "@owlbear-rodeo/sdk";
 import { conditions } from "./conditions";
 import { getPluginId } from "./getPluginId";
 import { buildConditionMarker, isPlainObject, updateConditionButtons, repositionConditionMarker } from "./helpers";
@@ -221,14 +221,18 @@ async function filterConditions(filterString: string) {
 
   const conditionsElem = document.querySelector(".conditions-area");
   const conditionsToAdd: HTMLElement[] = [];
-  const selection = await OBR.player.getSelection();
-  // Get all selected items
-  const itemsSelected = await OBR.scene.items.getItems<Image>(selection);
-  //Get all already made condition markers on the scene
-  const conditionMarkers = await OBR.scene.items.getItems<Image>((item) => {
-    const metadata = item.metadata[getPluginId("metadata")];
-    return Boolean(isPlainObject(metadata) && metadata.enabled);
-  });
+
+  const [allItems, selection, conditionMarkers] = await Promise.all([
+    OBR.scene.items.getItems(),
+    OBR.player.getSelection(),
+    // get condition markers already in the scene
+    OBR.scene.items.getItems<Image>(item => {
+      const metadata = item.metadata[getPluginId("metadata")];
+      return Boolean(isPlainObject(metadata) && metadata.enabled);
+    }),
+  ]);
+
+  const itemsSelected = allItems.filter(item => isImage(item) && selection?.includes(item.id));
 
   let attachedMarkers: Image[] = [];
   //Check whether this condition should be selected
@@ -299,8 +303,7 @@ async function filterConditions(filterString: string) {
       conditionsElem?.appendChild(button);
     });
 
-    const allItems = await OBR.scene.items.getItems();
-    updateConditionButtons(allItems);
+    updateConditionButtons(allItems, selection);
   }
 }
 

@@ -11,8 +11,8 @@ export function isPlainObject(
 }
 
 /** Update the selected state of the condition buttons */
-export async function updateConditionButtons(items: Item[]) {
-  const selection = await OBR.player.getSelection();
+export async function updateConditionButtons(items: Item[], selection?: string[]) {
+  if (selection === undefined) selection = await OBR.player.getSelection();
   // Remove all previous selected states
   document.querySelectorAll(".selected-icon").forEach(element => element.classList.remove("visible"));
   // Get all the markers that are attached to our current selection
