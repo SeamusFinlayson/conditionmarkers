@@ -212,7 +212,7 @@ input:focus {
 
 .condition-name p {
   margin: 0px;
-  background-color: rgba(93, 93, 94, 0.9);
+  background-color: rgba(93, 93, 94, 0.95);
   width: 46px;
   padding: 2px;
   border-radius: 50px;
@@ -224,7 +224,7 @@ input:focus {
   transition: opacity 0.2s;
 }
 
-.condition-name:hover p {
+:is(.condition-button:focus-visible .condition-name, .condition-name:hover) p {
   visibility: visible;
   opacity: 1;
 }
