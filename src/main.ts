@@ -1,4 +1,4 @@
-import OBR, { Image } from "@owlbear-rodeo/sdk";
+import OBR, { Image, Item } from "@owlbear-rodeo/sdk";
 import { conditions } from "./conditions";
 import { getPluginId } from "./getPluginId";
 import { buildConditionMarker, isPlainObject, updateConditionButtons, repositionConditionMarker } from "./helpers";
@@ -343,25 +343,31 @@ async function handleButtonClick(button: HTMLButtonElement) {
           selectedButton.style.visibility = "visible";
           selectedButton.classList.add("visible");
         }
-        markersToAdd.push(await buildConditionMarker(condition, item, item.scale.x, attachedMarkers.length));
+        markersToAdd.push(await buildConditionMarker(condition, item, attachedMarkers.length));
       }
     }
 
-    if (markersToAdd.length > 0) {
-      await OBR.scene.items.addItems(markersToAdd);
-    }
-
-    if (markersToDelete.length > 0) {
-      await OBR.scene.items.deleteItems(markersToDelete);
-    }
-
-    for (const item of itemsWithChangedMarkers) {
-      repositionConditionMarker(item);
-    }
+    // Sync changes with scene
+    await batchAddToScene(markersToAdd)
+    await OBR.scene.items.deleteItems(markersToDelete);
+    repositionConditionMarker(itemsWithChangedMarkers);
   }
 }
 
 //focus search bar
 function focusSearchBar() {
   (document.getElementById("search-bar") as HTMLInputElement)?.select();
+}
+
+// Prevent errors when many items are added at onces
+const MAX_UPDATE_LENGTH = 40;
+async function batchAddToScene(items: Item[]) {
+  for (let i = 0; i < Math.ceil(items.length / MAX_UPDATE_LENGTH); i++) {
+    await OBR.scene.items.addItems(
+      items.slice(
+        i * MAX_UPDATE_LENGTH,
+        (i + 1) * MAX_UPDATE_LENGTH
+      )
+    );
+  }
 }
