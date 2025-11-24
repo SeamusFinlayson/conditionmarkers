@@ -58,7 +58,8 @@ export async function buildConditionMarker(
 
   const builtMarker = buildImage(markerImage, imageGrid)
     .position(getMarkerPosition(attached, attachedCount, sceneDpi))
-    .rotation(attached.rotation)
+    // Keep marker orientation fixed (do not inherit parent's rotation)
+    .rotation(0)
     .scale(getMarkerScale(attached))
     .attachedTo(attached.id)
     .locked(true)
@@ -90,7 +91,14 @@ function getMarkerPosition(imageItem: Image, count: number, sceneDpi: number) {
   // Find position with respect to item position
   position = Math2.subtract(position, imageItem.grid.offset);
   position = Math2.multiply(position, sceneDpi / imageItem.grid.dpi); // scale switch from image to scene
-  position = Math2.multiply(position, imageItem.scale);
+  // Apply absolute scale to avoid inheriting any mirroring from the parent
+  // (flipping the token should not mirror the marker image or offset).
+  const absScale = { x: Math.abs(imageItem.scale.x), y: Math.abs(imageItem.scale.x) };
+  position = Math2.multiply(position, absScale);
+  // Rotate the marker offset by the parent's rotation so markers stay
+  // anchored to the same relative position on the parent even when the
+  // parent is rotated. The marker image itself will remain unrotated
+  // (we force marker.rotation = 0 when creating/updating the marker).
   position = Math2.rotate(position, { x: 0, y: 0 }, imageItem.rotation);
 
   // find position with respect to world
@@ -99,20 +107,16 @@ function getMarkerPosition(imageItem: Image, count: number, sceneDpi: number) {
   return position;
 }
 
- /**
-  * Get number of grid cells that the parent items spans horizontally
-  */
+/**
+ * Get number of grid cells that the parent items spans horizontally
+ */
 function getMarkerScale(imageItem: Image) {
-  const scale = Math2.multiply(
-    {
-      x: imageItem.scale.x,
-      y: imageItem.scale.x, // x is intentional, x and y must match
-    },
-    imageItem.image.width / imageItem.grid.dpi
-  );
+  // Use absolute value of the parent's x scale to avoid mirroring the marker
+  const absScale = { x: Math.abs(imageItem.scale.x), y: Math.abs(imageItem.scale.x) };
+  const scale = Math2.multiply(absScale, imageItem.image.width / imageItem.grid.dpi);
   return scale;
 }
- 
+
 /**
  * Reposition a marker after one was deleted, always hug the upper left corner
  */
@@ -124,7 +128,7 @@ export async function repositionConditionMarker(imageItems: Image[]) {
   });
 
   let attachedMarkers: Image[] = [];
-  let newMarker: { id: string; position: Vector2 }[] = [];
+  let newMarker: { id: string; position: Vector2; scale: { x: number; y: number } }[] = [];
   for (const imageItem of imageItems) {
     // Find all markers attached to this item
     attachedMarkers = conditionMarkers.filter(
@@ -137,6 +141,7 @@ export async function repositionConditionMarker(imageItems: Image[]) {
       newMarker.push({
         id: attachedMarkers[i].id,
         position: getMarkerPosition(imageItem, i, sceneDpi),
+        scale: getMarkerScale(imageItem),
       });
     }
   }
@@ -146,9 +151,14 @@ export async function repositionConditionMarker(imageItems: Image[]) {
     newMarker.map(marker => marker.id),
     images => {
       for (let i = 0; i < images.length; i++) {
-        if (images[i].id !== newMarker[i].id)
+        if (images[i].id !== newMarker[i].id) {
           console.error("Condition marker ID mismatch, skipping item.");
-        else images[i].position = newMarker[i].position;
+        } else {
+          images[i].position = newMarker[i].position;
+          // Ensure markers keep a fixed orientation and correct size when they are repositioned
+          images[i].rotation = 0;
+          images[i].scale = newMarker[i].scale;
+        }
       }
     }
   );
