@@ -106,7 +106,7 @@ function getMarkerScale(imageItem: Image) {
   const scale = Math2.multiply(
     {
       x: imageItem.scale.x,
-      y: imageItem.scale.x, // x is intentional, x and y must match
+      y: Math.abs(imageItem.scale.x), // x is intentional, x and y must match
     },
     imageItem.image.width / imageItem.grid.dpi
   );
