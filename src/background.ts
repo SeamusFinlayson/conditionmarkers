@@ -17,8 +17,9 @@ OBR.onReady(() => {
         label: "Condition Markers",
         filter: {
           every: [
+            { key: "layer", value: "CHARACTER", coordinator: "||" },
+            { key: "layer", value: "MOUNT" },
             { key: "type", value: "IMAGE" },
-            { key: "layer", value: "CHARACTER" },
           ],
           permissions: ["UPDATE"],
         },
