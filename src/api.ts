@@ -64,7 +64,7 @@ type ResponseMessage =
 
 
 function normalizeCondition(conditionArray: string[]): string[] {
-  return conditionArray.map((item) => item.replace(/['-]/g, "").replace(/[_]/g, " "));
+  return conditionArray.map((item) => item.replace(/[-]/g, "").replace(/[_]/g, " "));
 }
 
 const conditionsList = normalizeCondition(conditions);
